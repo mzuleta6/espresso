@@ -1,0 +1,20 @@
+{
+  "name": "espresso",
+  "version": "1.1.0",
+  "description": "Claude without the noise.",
+  "author": "mzuleta6",
+  "license": "MIT",
+  "homepage": "https://github.com/mzuleta6/espresso",
+  "keywords": ["espresso","productivity","token-reduction","concise","claude-code"],
+  "category": "productivity",
+  "skills": [
+    {
+      "name": "espresso",
+      "path": "skills/espresso/SKILL.md",
+      "always": true
+    }
+  ],
+  "claude_code": { "min_version": "1.0.0" },
+  "icon": "☕",
+  "preview": "https://raw.githubusercontent.com/mzuleta6/espresso/main/.github/banner.svg"
+}

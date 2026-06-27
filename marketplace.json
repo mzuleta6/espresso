@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "name": "espresso",
+  "display_name": "espresso — Claude without the noise.",
+  "version": "1.1.0",
+  "description": "Eliminates hedging, filler, re-contextualization from every Claude response.",
+  "author": {
+    "name": "mzuleta6",
+    "url": "https://github.com/mzuleta6"
+  },
+  "source": {
+    "type": "github",
+    "url": "https://github.com/mzuleta6/espresso",
+    "ref": "main"
+  },
+  "license": "MIT",
+  "category": "productivity",
+  "tags": ["productivity","token-efficiency","developer-experience","noise-reduction"],
+  "icon": "☕",
+  "install": {
+    "marketplace": "/plugin marketplace add mzuleta6/espresso",
+    "manual": "mkdir -p ~/.claude/plugins/espresso && curl -o ~/.claude/plugins/espresso/SKILL.md https://raw.githubusercontent.com/mzuleta6/espresso/main/SKILL.md"
+  }
+}
