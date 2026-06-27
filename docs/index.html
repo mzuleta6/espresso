@@ -82,6 +82,7 @@
       letter-spacing: -0.5px;
       line-height: 1.15;
       margin-bottom: 14px;
+      text-wrap: balance;
     }
 
     .sec-p {
@@ -132,6 +133,22 @@
     }
     .nav-links a:hover { color: var(--text); }
 
+    .nav-lang {
+      font-family: var(--fd);
+      font-size: var(--t-xs);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 11px;
+      min-height: 30px;
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+    }
+    .nav-lang:hover { color: var(--text); border-color: var(--muted); }
+
     .nav-gh {
       font-size: var(--t-sm);
       font-weight: 600;
@@ -167,6 +184,7 @@
       letter-spacing: -2.5px;
       line-height: 1.08;
       margin-bottom: 22px;
+      text-wrap: balance;
     }
 
     .hero-sub {
@@ -281,21 +299,25 @@
       padding: 3px;
       border-radius: 9px;
       width: fit-content;
+      max-width: 100%;
       margin-bottom: 16px;
     }
 
     .demo-tab {
+      flex: 1;
       font-family: var(--fb);
       font-size: var(--t-sm);
       font-weight: 500;
-      padding: 8px 18px;
-      min-height: 36px;
+      padding: 8px 20px;
+      min-height: 44px;
+      min-width: 0;
       border: none;
       border-radius: 7px;
       background: transparent;
       color: var(--muted);
       cursor: pointer;
       transition: all .15s;
+      white-space: nowrap;
     }
 
     .demo-tab.active {
@@ -314,23 +336,15 @@
       border: 1.5px solid var(--border);
       border-radius: var(--r);
       padding: 26px 28px;
-      min-height: 270px;
-      position: relative;
-      overflow: hidden;
     }
 
     .demo-resp {
-      position: absolute;
-      inset: 26px 28px;
       font-size: 15px;
       line-height: 1.7;
-      transition: opacity .22s, transform .22s;
     }
 
     .demo-resp.hidden {
-      opacity: 0;
-      transform: translateY(6px);
-      pointer-events: none;
+      display: none;
     }
 
     .demo-resp p { margin-bottom: 12px; }
@@ -358,7 +372,9 @@
     .demo-meta {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 4px 16px;
       margin-top: 12px;
     }
 
@@ -648,10 +664,11 @@
   <nav>
     <a href="#" class="nav-logo">☕ espresso</a>
     <ul class="nav-links">
-      <li><a href="#demo">See it</a></li>
-      <li><a href="#use">How to use</a></li>
-      <li><a href="#never">What stays</a></li>
+      <li><a href="#demo" data-i18n="nav-see">See it</a></li>
+      <li><a href="#use" data-i18n="nav-use">How to use</a></li>
+      <li><a href="#never" data-i18n="nav-never">What stays</a></li>
     </ul>
+    <button class="nav-lang" id="lang-btn" onclick="toggleLang()">ES</button>
     <a href="https://github.com/mzuleta6/espresso" class="nav-gh" target="_blank" rel="noopener">GitHub →</a>
   </nav>
 
@@ -661,13 +678,13 @@
     <section id="hero">
       <div class="wrap">
         <span class="hero-icon">☕</span>
-        <span class="eyebrow" style="justify-content:center;display:block;">Claude Code plugin · free · open source</span>
+        <span class="eyebrow" style="justify-content:center;display:block;" data-i18n="hero-eyebrow">Claude Code plugin · free · open source</span>
 
-        <h1 class="hero-h">
+        <h1 class="hero-h" data-i18n-html="hero-h">
           Get the answer.<br>Not the essay.
         </h1>
 
-        <p class="hero-sub">
+        <p class="hero-sub" data-i18n="hero-sub">
           espresso removes hedging, filler, and re-contextualization
           from every Claude response — without ever touching your code.
         </p>
@@ -675,19 +692,19 @@
         <div style="display:flex;justify-content:center;margin-bottom:40px;">
           <div class="hero-pill">
             <span class="hero-pill-n">−66%</span>
-            <span class="hero-pill-l">shorter<br>on average</span>
+            <span class="hero-pill-l" data-i18n-html="hero-pill-l">shorter<br>on average</span>
           </div>
         </div>
 
         <div class="hero-ctas">
           <div class="hero-install">
             <code>/plugin marketplace add mzuleta6/espresso</code>
-            <button class="hero-install-btn" onclick="cp(this,'/plugin marketplace add mzuleta6/espresso')">
+            <button class="hero-install-btn" onclick="cp(this,'/plugin marketplace add mzuleta6/espresso')" data-i18n="copy-btn">
               Copy
             </button>
           </div>
           <a href="https://github.com/mzuleta6/espresso"
-             class="hero-gh-link" target="_blank" rel="noopener">
+             class="hero-gh-link" target="_blank" rel="noopener" data-i18n="hero-gh-link">
             View on GitHub →
           </a>
         </div>
@@ -697,24 +714,24 @@
     <!-- ─── Demo ─── -->
     <section id="demo">
       <div class="wrap">
-        <span class="eyebrow">See it in action</span>
-        <h2 class="sec-h">The same question.<br>Two very different answers.</h2>
-        <p class="sec-p">
+        <span class="eyebrow" data-i18n="demo-eyebrow">See it in action</span>
+        <h2 class="sec-h" data-i18n-html="demo-h">The same question.<br>Two very different answers.</h2>
+        <p class="sec-p" data-i18n="demo-p">
           Real question. Real responses. Muted italic text is the noise espresso removes.
         </p>
 
-        <p class="demo-q-label">
+        <p class="demo-q-label" data-i18n-html="demo-q">
           <strong>Question asked:</strong>
           "Why is my Server Action not throwing when Prisma fails?"
         </p>
 
         <div class="demo-tabs">
-          <button class="demo-tab active" id="tb" onclick="showDemo('before')">Without espresso</button>
-          <button class="demo-tab esp"    id="ta" onclick="showDemo('after')">With espresso</button>
+          <button class="demo-tab active" id="tb" onclick="showDemo('before')" data-i18n="tab-before">Without espresso</button>
+          <button class="demo-tab esp"    id="ta" onclick="showDemo('after')"  data-i18n="tab-after">With espresso</button>
         </div>
 
         <div class="demo-card">
-          <div class="demo-resp" id="rb">
+          <div class="demo-resp" id="rb" data-i18n-html="demo-before">
             <p>
               <span class="noise">Great question!</span>
               Server Actions in Next.js are a powerful feature that allows you to run server-side code directly from your components.
@@ -732,7 +749,7 @@
               <span class="noise">I'd suggest trying to add a try-catch block and explicitly rethrowing the error. This should help surface the error properly. Let me know if you'd like me to elaborate or have any questions!</span>
             </p>
           </div>
-          <div class="demo-resp hidden" id="ra">
+          <div class="demo-resp hidden" id="ra" data-i18n-html="demo-after">
             <p>Server Actions swallow errors by default — Next.js catches them and surfaces them as ErrorBoundary triggers, not thrown exceptions. Rethrow explicitly:</p>
             <pre>export async function updateUser(data: FormData) {
   "use server"
@@ -749,9 +766,9 @@
 
         <div class="demo-meta">
           <div class="demo-count-wrap">
-            <span class="demo-count-n" id="dcn">1,851</span> characters
+            <span class="demo-count-n" id="dcn">1,851</span> <span data-i18n="chars-label">characters</span>
           </div>
-          <span class="demo-verdict" id="dvd">
+          <span class="demo-verdict" id="dvd" data-i18n="verdict-before">
             7 sentences · 4 were noise · answer was sentence 4
           </span>
         </div>
@@ -761,35 +778,35 @@
     <!-- ─── Stats — dark shot ─── -->
     <section id="stats">
       <div class="wrap">
-        <span class="stats-eyebrow">
+        <span class="stats-eyebrow" data-i18n="stats-eyebrow">
           In-session A/B benchmark · same model · character count
         </span>
 
         <div class="stats-grid">
           <div class="stat-item reveal">
             <span class="stat-n amber" id="sn1">−66%</span>
-            <span class="stat-l">shorter per response</span>
+            <span class="stat-l" data-i18n="stat-shorter">shorter per response</span>
           </div>
           <div class="stat-item reveal">
             <span class="stat-n cream" id="sn2">3,288</span>
-            <span class="stat-l">characters saved per session</span>
+            <span class="stat-l" data-i18n="stat-saved">characters saved per session</span>
           </div>
           <div class="stat-item reveal">
             <span class="stat-n green" id="sn3">219</span>
-            <span class="stat-l">fewer words per answer</span>
+            <span class="stat-l" data-i18n="stat-words">fewer words per answer</span>
           </div>
         </div>
 
-        <p class="stats-note">3 questions tested · React re-render, TS2345, Next.js Server Actions</p>
+        <p class="stats-note" data-i18n="stats-note">3 questions tested · React re-render, TS2345, Next.js Server Actions</p>
       </div>
     </section>
 
     <!-- ─── How to use ─── -->
     <section id="use">
       <div class="wrap">
-        <span class="eyebrow">How to use it</span>
-        <h2 class="sec-h">Already on.<br>Just type.</h2>
-        <p class="use-intro">
+        <span class="eyebrow" data-i18n="use-eyebrow">How to use it</span>
+        <h2 class="sec-h" data-i18n-html="use-h">Already on.<br>Just type.</h2>
+        <p class="use-intro" data-i18n="use-intro">
           Once installed, espresso activates automatically — you don't need to do anything.
           To change how aggressive it is:
         </p>
@@ -797,28 +814,28 @@
         <div class="use-grid">
           <div class="use-card">
             <span class="use-cmd">/espresso lite</span>
-            <div class="use-desc">
+            <div class="use-desc" data-i18n-html="use-lite">
               <strong>Lite</strong>
               <span>Quieter. Keeps some context when the topic needs it.</span>
             </div>
           </div>
           <div class="use-card">
             <span class="use-cmd">/espresso full</span>
-            <div class="use-desc">
+            <div class="use-desc" data-i18n-html="use-full">
               <strong>Full — default</strong>
               <span>Removes all noise. Keeps all substance.</span>
             </div>
           </div>
           <div class="use-card">
             <span class="use-cmd">/espresso ultra</span>
-            <div class="use-desc">
+            <div class="use-desc" data-i18n-html="use-ultra">
               <strong>Ultra</strong>
               <span>Maximum. No unsolicited explanations or examples.</span>
             </div>
           </div>
           <div class="use-card">
             <span class="use-cmd">/normal</span>
-            <div class="use-desc">
+            <div class="use-desc" data-i18n-html="use-off">
               <strong>Off</strong>
               <span>Turns espresso off. Back to standard Claude.</span>
             </div>
@@ -830,9 +847,9 @@
     <!-- ─── What stays ─── -->
     <section id="never">
       <div class="wrap">
-        <span class="eyebrow">What espresso never touches</span>
-        <h2 class="sec-h">Code always comes out whole.</h2>
-        <p class="sec-p">
+        <span class="eyebrow" data-i18n="never-eyebrow">What espresso never touches</span>
+        <h2 class="sec-h" data-i18n="never-h">Code always comes out whole.</h2>
+        <p class="sec-p" data-i18n="never-p">
           espresso only removes prose filler.
           It never shortens, truncates, or paraphrases any of these:
         </p>
@@ -840,57 +857,57 @@
         <div class="nv-grid">
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
+            <div class="nv-text" data-i18n-html="nv-code">
               <strong>Code blocks</strong>
               <span>Complete — no <code style="font-size:11px">// ...rest is the same</code></span>
             </div>
           </div>
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
+            <div class="nv-text" data-i18n-html="nv-errors">
               <strong>Error messages</strong>
               <span>Verbatim, full stack traces</span>
             </div>
           </div>
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
+            <div class="nv-text" data-i18n-html="nv-ts">
               <strong>TypeScript types</strong>
               <span>Full interfaces, generics, union types</span>
             </div>
           </div>
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
-              <strong>API names & endpoints</strong>
+            <div class="nv-text" data-i18n-html="nv-api">
+              <strong>API names &amp; endpoints</strong>
               <span>Exact casing, exact paths</span>
             </div>
           </div>
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
+            <div class="nv-text" data-i18n-html="nv-cli">
               <strong>CLI commands</strong>
               <span>All flags, full paths when they matter</span>
             </div>
           </div>
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
+            <div class="nv-text" data-i18n-html="nv-hooks">
               <strong>React hooks</strong>
               <span>Full implementations, correct dependency arrays</span>
             </div>
           </div>
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
+            <div class="nv-text" data-i18n-html="nv-tw">
               <strong>Tailwind classes</strong>
               <span>Full class lists, never collapsed</span>
             </div>
           </div>
           <div class="nv-item reveal">
             <div class="nv-dot"></div>
-            <div class="nv-text">
-              <strong>Artifacts & components</strong>
+            <div class="nv-text" data-i18n-html="nv-art">
+              <strong>Artifacts &amp; components</strong>
               <span>Full design, complete implementation</span>
             </div>
           </div>
@@ -909,7 +926,8 @@
         <div class="ft-install">
           <code>/plugin marketplace add mzuleta6/espresso</code>
           <button class="ft-install-btn"
-                  onclick="cp(this,'/plugin marketplace add mzuleta6/espresso')">
+                  onclick="cp(this,'/plugin marketplace add mzuleta6/espresso')"
+                  data-i18n="copy-btn">
             Copy
           </button>
         </div>
@@ -920,13 +938,171 @@
           &nbsp;·&nbsp;
           <a href="https://github.com/mzuleta6/espresso" target="_blank" rel="noopener">GitHub</a>
           &nbsp;·&nbsp;
-          <a href="https://github.com/mzuleta6/espresso/issues" target="_blank" rel="noopener">Report an issue</a>
+          <a href="https://github.com/mzuleta6/espresso/issues" target="_blank" rel="noopener" data-i18n="footer-issue">Report an issue</a>
         </p>
       </div>
     </div>
   </footer>
 
   <script>
+
+    /* ─── Translations ─── */
+    const T = {
+      en: {
+        /* nav */
+        'nav-see':    'See it',
+        'nav-use':    'How to use',
+        'nav-never':  'What stays',
+
+        /* hero */
+        'hero-eyebrow':  'Claude Code plugin · free · open source',
+        'hero-h':        'Get the answer.<br>Not the essay.',
+        'hero-sub':      'espresso removes hedging, filler, and re-contextualization from every Claude response — without ever touching your code.',
+        'hero-pill-l':   'shorter<br>on average',
+        'copy-btn':      'Copy',
+        'copy-done':     'Copied!',
+        'hero-gh-link':  'View on GitHub →',
+
+        /* demo */
+        'demo-eyebrow':  'See it in action',
+        'demo-h':        'The same question.<br>Two very different answers.',
+        'demo-p':        'Real question. Real responses. Muted italic text is the noise espresso removes.',
+        'demo-q':        '<strong>Question asked:</strong> "Why is my Server Action not throwing when Prisma fails?"',
+        'tab-before':    'Without espresso',
+        'tab-after':     'With espresso',
+        'chars-label':   'characters',
+        'verdict-before':'7 sentences · 4 were noise · answer was sentence 4',
+        'verdict-after': '1 sentence · then code · nothing wasted',
+        'demo-before':   `<p><span class="noise">Great question!</span> Server Actions in Next.js are a powerful feature that allows you to run server-side code directly from your components. <span class="noise">When it comes to error handling, there are a few things to consider.</span></p><p><span class="noise">First, let me explain what happens when a Server Action encounters an error.</span> By default, Next.js wraps Server Actions in an error boundary, which means errors thrown inside them <span class="noise">may not propagate the way you'd expect from a regular async function.</span></p><p><span class="noise">This might be because of how Next.js handles errors internally, or it could be related to how Prisma throws errors in certain contexts. It's possible that the error is being caught somewhere.</span></p><p><span class="noise">I'd suggest trying to add a try-catch block and explicitly rethrowing the error. This should help surface the error properly. Let me know if you'd like me to elaborate or have any questions!</span></p>`,
+        'demo-after':    `<p>Server Actions swallow errors by default — Next.js catches them and surfaces them as ErrorBoundary triggers, not thrown exceptions. Rethrow explicitly:</p><pre>export async function updateUser(data: FormData) {\n  "use server"\n  try {\n    await prisma.user.update({ ... })\n  } catch (err) {\n    throw new Error(\n      \`Failed: \${err instanceof Error ? err.message : String(err)}\`\n    )\n  }\n}</pre>`,
+
+        /* stats */
+        'stats-eyebrow': 'In-session A/B benchmark · same model · character count',
+        'stat-shorter':  'shorter per response',
+        'stat-saved':    'characters saved per session',
+        'stat-words':    'fewer words per answer',
+        'stats-note':    '3 questions tested · React re-render, TS2345, Next.js Server Actions',
+
+        /* use */
+        'use-eyebrow':   'How to use it',
+        'use-h':         'Already on.<br>Just type.',
+        'use-intro':     'Once installed, espresso activates automatically — you don\'t need to do anything. To change how aggressive it is:',
+        'use-lite':      '<strong>Lite</strong><span>Quieter. Keeps some context when the topic needs it.</span>',
+        'use-full':      '<strong>Full — default</strong><span>Removes all noise. Keeps all substance.</span>',
+        'use-ultra':     '<strong>Ultra</strong><span>Maximum. No unsolicited explanations or examples.</span>',
+        'use-off':       '<strong>Off</strong><span>Turns espresso off. Back to standard Claude.</span>',
+
+        /* never */
+        'never-eyebrow': 'What espresso never touches',
+        'never-h':       'Code always comes out whole.',
+        'never-p':       'espresso only removes prose filler. It never shortens, truncates, or paraphrases any of these:',
+        'nv-code':       '<strong>Code blocks</strong><span>Complete — no <code style="font-size:11px">// ...rest is the same</code></span>',
+        'nv-errors':     '<strong>Error messages</strong><span>Verbatim, full stack traces</span>',
+        'nv-ts':         '<strong>TypeScript types</strong><span>Full interfaces, generics, union types</span>',
+        'nv-api':        '<strong>API names &amp; endpoints</strong><span>Exact casing, exact paths</span>',
+        'nv-cli':        '<strong>CLI commands</strong><span>All flags, full paths when they matter</span>',
+        'nv-hooks':      '<strong>React hooks</strong><span>Full implementations, correct dependency arrays</span>',
+        'nv-tw':         '<strong>Tailwind classes</strong><span>Full class lists, never collapsed</span>',
+        'nv-art':        '<strong>Artifacts &amp; components</strong><span>Full design, complete implementation</span>',
+
+        /* footer */
+        'footer-issue':  'Report an issue',
+      },
+
+      es: {
+        /* nav */
+        'nav-see':    'Ver demo',
+        'nav-use':    'Cómo usarlo',
+        'nav-never':  'Qué se preserva',
+
+        /* hero */
+        'hero-eyebrow':  'Plugin de Claude Code · gratis · código abierto',
+        'hero-h':        'La respuesta.<br>No el ensayo.',
+        'hero-sub':      'espresso elimina las evasivas, el relleno y la recontextualización de cada respuesta de Claude — sin tocar tu código.',
+        'hero-pill-l':   'más corto<br>en promedio',
+        'copy-btn':      'Copiar',
+        'copy-done':     '¡Copiado!',
+        'hero-gh-link':  'Ver en GitHub →',
+
+        /* demo */
+        'demo-eyebrow':  'Véalo en acción',
+        'demo-h':        'La misma pregunta.<br>Dos respuestas muy distintas.',
+        'demo-p':        'Preguntas reales. Respuestas reales. El texto en cursiva atenuado es el ruido que espresso elimina.',
+        'demo-q':        '<strong>Pregunta:</strong> "¿Por qué mi Server Action no lanza errores cuando Prisma falla?"',
+        'tab-before':    'Sin espresso',
+        'tab-after':     'Con espresso',
+        'chars-label':   'caracteres',
+        'verdict-before':'7 oraciones · 4 eran ruido · la respuesta era la oración 4',
+        'verdict-after': '1 oración · luego código · nada desperdiciado',
+        'demo-before':   `<p><span class="noise">¡Buena pregunta!</span> Los Server Actions de Next.js son una funcionalidad poderosa que permite ejecutar código del servidor directamente desde tus componentes. <span class="noise">Cuando se trata del manejo de errores, hay algunas cosas a considerar.</span></p><p><span class="noise">Primero, déjame explicar qué sucede cuando un Server Action encuentra un error.</span> Por defecto, Next.js envuelve los Server Actions en un error boundary, lo que significa que los errores lanzados dentro de ellos <span class="noise">pueden no propagarse de la manera que esperarías de una función async normal.</span></p><p><span class="noise">Esto podría deberse a cómo Next.js maneja los errores internamente, o podría estar relacionado con cómo Prisma lanza errores en ciertos contextos. Es posible que el error esté siendo capturado en algún lugar.</span></p><p><span class="noise">Te sugiero agregar un bloque try-catch y relanzar el error explícitamente. Esto debería ayudar a que el error sea visible. ¡Avísame si quieres que explique más o si tienes alguna pregunta!</span></p>`,
+        'demo-after':    `<p>Los Server Actions capturan los errores por defecto — Next.js los intercepta y los convierte en triggers de ErrorBoundary, no en excepciones lanzadas. Relanza explícitamente:</p><pre>export async function updateUser(data: FormData) {\n  "use server"\n  try {\n    await prisma.user.update({ ... })\n  } catch (err) {\n    throw new Error(\n      \`Failed: \${err instanceof Error ? err.message : String(err)}\`\n    )\n  }\n}</pre>`,
+
+        /* stats */
+        'stats-eyebrow': 'Benchmark A/B en sesión · mismo modelo · conteo de caracteres',
+        'stat-shorter':  'más corto por respuesta',
+        'stat-saved':    'caracteres ahorrados por sesión',
+        'stat-words':    'menos palabras por respuesta',
+        'stats-note':    '3 preguntas probadas · React re-render, TS2345, Next.js Server Actions',
+
+        /* use */
+        'use-eyebrow':   'Cómo usarlo',
+        'use-h':         'Ya está activado.<br>Solo escribe.',
+        'use-intro':     'Una vez instalado, espresso se activa automáticamente — no necesitas hacer nada. Para cambiar qué tan agresivo es:',
+        'use-lite':      '<strong>Lite</strong><span>Más suave. Mantiene algo de contexto cuando el tema lo necesita.</span>',
+        'use-full':      '<strong>Full — predeterminado</strong><span>Elimina todo el ruido. Preserva todo lo esencial.</span>',
+        'use-ultra':     '<strong>Ultra</strong><span>Máximo. Sin explicaciones ni ejemplos no solicitados.</span>',
+        'use-off':       '<strong>Off</strong><span>Desactiva espresso. Vuelve al Claude estándar.</span>',
+
+        /* never */
+        'never-eyebrow': 'Lo que espresso nunca toca',
+        'never-h':       'El código siempre sale completo.',
+        'never-p':       'espresso solo elimina el relleno de texto. Nunca acorta, trunca ni parafrasea nada de esto:',
+        'nv-code':       '<strong>Bloques de código</strong><span>Completos — sin <code style="font-size:11px">// ...el resto es igual</code></span>',
+        'nv-errors':     '<strong>Mensajes de error</strong><span>Literales, con stack traces completos</span>',
+        'nv-ts':         '<strong>Tipos de TypeScript</strong><span>Interfaces completas, genéricos, tipos unión</span>',
+        'nv-api':        '<strong>Nombres de API y endpoints</strong><span>Capitalización exacta, rutas exactas</span>',
+        'nv-cli':        '<strong>Comandos de CLI</strong><span>Todos los flags, rutas completas cuando importan</span>',
+        'nv-hooks':      '<strong>React hooks</strong><span>Implementaciones completas, arrays de dependencias correctos</span>',
+        'nv-tw':         '<strong>Clases de Tailwind</strong><span>Listas completas, nunca colapsadas</span>',
+        'nv-art':        '<strong>Artifacts y componentes</strong><span>Diseño completo, implementación íntegra</span>',
+
+        /* footer */
+        'footer-issue':  'Reportar un problema',
+      }
+    };
+
+    /* ─── Language state ─── */
+    let lang = localStorage.getItem('lang') ||
+      (navigator.language && navigator.language.startsWith('es') ? 'es' : 'en');
+
+    function setLang(l) {
+      lang = l;
+      localStorage.setItem('lang', l);
+      document.documentElement.lang = l;
+      const t = T[l];
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (t[key] !== undefined) el.textContent = t[key];
+      });
+
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const key = el.dataset.i18nHtml;
+        if (t[key] !== undefined) el.innerHTML = t[key];
+      });
+
+      document.getElementById('lang-btn').textContent = l === 'en' ? 'ES' : 'EN';
+
+      /* keep verdict in sync with current tab */
+      const isAfter = document.getElementById('ra') && !document.getElementById('ra').classList.contains('hidden');
+      const dvd = document.getElementById('dvd');
+      if (dvd) dvd.textContent = isAfter ? t['verdict-after'] : t['verdict-before'];
+    }
+
+    function toggleLang() {
+      setLang(lang === 'en' ? 'es' : 'en');
+    }
+
     /* ─── Demo toggle + char counter ─── */
     function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
 
@@ -949,15 +1125,16 @@
       const dv = document.getElementById('dvd');
       const current = state === 'before' ? 1851 : 526;
       const from    = state === 'before' ? 526  : 1851;
+      const t = T[lang];
 
       if (state === 'before') {
         rb.classList.remove('hidden'); ra.classList.add('hidden');
         tb.classList.add('active');    ta.classList.remove('active');
-        dv.textContent = '7 sentences · 4 were noise · answer was sentence 4';
+        dv.textContent = t['verdict-before'];
       } else {
         ra.classList.remove('hidden'); rb.classList.add('hidden');
         ta.classList.add('active');    tb.classList.remove('active');
-        dv.textContent = '1 sentence · then code · nothing wasted';
+        dv.textContent = t['verdict-after'];
       }
 
       animateCount(cn, from, current, 500, n => n.toLocaleString());
@@ -966,8 +1143,9 @@
     /* ─── Copy ─── */
     function cp(btn, text) {
       navigator.clipboard.writeText(text).then(() => {
-        const was = btn.textContent;
-        btn.textContent = 'Copied!';
+        const t = T[lang];
+        const was = btn.dataset.i18n ? t[btn.dataset.i18n] : btn.textContent;
+        btn.textContent = t['copy-done'];
         setTimeout(() => { btn.textContent = was; }, 1800);
       });
     }
@@ -983,6 +1161,10 @@
     }, { threshold: 0.15 });
 
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    /* ─── Init language ─── */
+    setLang(lang);
+
   </script>
 
 </body>
