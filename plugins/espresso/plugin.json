@@ -24,6 +24,12 @@
     "tailwind"
   ],
   "category": "productivity",
+  "skills": [
+    {
+      "name": "espresso",
+      "path": "skills/espresso/SKILL.md"
+    }
+  ],
   "claude_code": {
     "min_version": "1.0.0"
   },
