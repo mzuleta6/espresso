@@ -2,13 +2,13 @@
   "name": "espresso",
   "version": "1.1.0",
   "description": "Claude without the noise. Eliminates hedging, filler, and re-contextualization from every response without sacrificing precision.",
-  "author": "mzuleta6",
+  "author": {
+    "name": "mzuleta6",
+    "url": "https://github.com/mzuleta6"
+  },
   "license": "MIT",
   "homepage": "https://github.com/mzuleta6/espresso",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mzuleta6/espresso.git"
-  },
+  "repository": "https://github.com/mzuleta6/espresso.git",
   "keywords": [
     "espresso",
     "productivity",
