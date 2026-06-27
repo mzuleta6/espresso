@@ -5,6 +5,25 @@
   "author": "mzuleta6",
   "license": "MIT",
   "homepage": "https://github.com/mzuleta6/espresso",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mzuleta6/espresso.git"
+  },
+  "keywords": [
+    "espresso",
+    "productivity",
+    "token-reduction",
+    "concise",
+    "noise-free",
+    "claude-code",
+    "skill",
+    "developer-experience",
+    "react",
+    "nextjs",
+    "typescript",
+    "tailwind"
+  ],
+  "category": "productivity",
   "skills": [
     {
       "name": "espresso",
@@ -12,13 +31,10 @@
       "always": true
     }
   ],
-  "keywords": [
-    "espresso",
-    "productivity",
-    "token-reduction",
-    "concise",
-    "noise-free",
-    "claude-code"
-  ],
-  "category": "productivity"
+  "claude_code": {
+    "min_version": "1.0.0"
+  },
+  "tags": ["productivity", "token-efficiency", "developer-tools", "noise-reduction"],
+  "icon": "☕",
+  "preview": "https://raw.githubusercontent.com/mzuleta6/espresso/v1.1.0/.github/banner.svg"
 }
