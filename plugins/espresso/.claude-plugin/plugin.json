@@ -1,11 +1,28 @@
 {
   "name": "espresso",
   "version": "1.1.0",
-  "description": "Claude without the noise.",
+  "description": "Claude without the noise. Eliminates hedging, filler, and re-contextualization from every response without sacrificing precision.",
   "author": "mzuleta6",
   "license": "MIT",
   "homepage": "https://github.com/mzuleta6/espresso",
-  "keywords": ["espresso","productivity","token-reduction","concise","claude-code"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mzuleta6/espresso.git"
+  },
+  "keywords": [
+    "espresso",
+    "productivity",
+    "token-reduction",
+    "concise",
+    "noise-free",
+    "claude-code",
+    "skill",
+    "developer-experience",
+    "react",
+    "nextjs",
+    "typescript",
+    "tailwind"
+  ],
   "category": "productivity",
   "skills": [
     {
@@ -14,7 +31,10 @@
       "always": true
     }
   ],
-  "claude_code": { "min_version": "1.0.0" },
+  "claude_code": {
+    "min_version": "1.0.0"
+  },
+  "tags": ["productivity", "token-efficiency", "developer-tools", "noise-reduction"],
   "icon": "☕",
-  "preview": "https://raw.githubusercontent.com/mzuleta6/espresso/main/.github/banner.svg"
+  "preview": "https://raw.githubusercontent.com/mzuleta6/espresso/v1.1.0/.github/banner.svg"
 }
