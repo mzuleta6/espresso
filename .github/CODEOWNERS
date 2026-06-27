@@ -1,6 +1,9 @@
-# Cualquier cambio requiere tu review
+# All changes require review from the repo owner
 * @mzuleta6
 
-# SKILL.md específicamente requiere review extra cuidadoso
+# Highest-risk files — SKILL.md changes affect all installed users
 SKILL.md @mzuleta6
 plugins/ @mzuleta6
+
+# Workflow changes can introduce supply chain attacks
+.github/workflows/ @mzuleta6
