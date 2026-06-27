@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>espresso — Claude without the noise.</title>
+  <meta name="description" content="A Claude Code plugin that cuts hedging, filler, and re-contextualization from every response. −66% shorter. Same answer.">
+  <meta property="og:title" content="espresso — Claude without the noise.">
+  <meta property="og:description" content="Ask Claude a question. Get the answer — just the answer. Free Claude Code plugin.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+
+  <style>
+    /* ─── Tokens ─── */
+    :root {
+      --bg:       #FBF8F3;
+      --bg-alt:   #F3EDE2;
+      --bg-dark:  #231A0C;
+      --border:   #E5D8C4;
+      --text:     #231A0C;
+      --muted:    #7A6A55;
+      --dim:      #9C8A6E;
+      --amber:    #BA7517;
+      --amber-bg: #FAEEDA;
+      --stone:    #C4B09A;
+      --green:    #5C8A1A;
+
+      /* fluid type scale */
+      --t-hero: clamp(38px, 7.5vw, 78px);
+      --t-h2:   clamp(26px, 4vw,   40px);
+      --t-body: 17px;
+      --t-sm:   14px;
+      --t-xs:   12px;
+      --t-eye:  11px;
+
+      --fd: 'Courier New', Courier, monospace;
+      --fb: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+      --max: 720px;
+      --r:   10px;
+    }
+
+    /* ─── Reset ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--fb);
+      font-size: var(--t-body);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    pre, code { font-family: var(--fd); }
+
+    /* ─── Layout ─── */
+    .wrap {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ─── Shared text ─── */
+    .eyebrow {
+      display: block;
+      font-family: var(--fb);
+      font-size: var(--t-eye);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--dim);
+      margin-bottom: 14px;
+    }
+
+    .sec-h {
+      font-family: var(--fd);
+      font-size: var(--t-h2);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      margin-bottom: 14px;
+    }
+
+    .sec-p {
+      font-size: var(--t-body);
+      color: var(--muted);
+      max-width: 54ch;
+      line-height: 1.65;
+      margin-bottom: 32px;
+    }
+
+    /* ─── Nav ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(251,248,243,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--fd);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: var(--t-sm);
+      color: var(--muted);
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-gh {
+      font-size: var(--t-sm);
+      font-weight: 600;
+      color: var(--amber);
+      border: 1.5px solid var(--amber);
+      padding: 6px 16px;
+      border-radius: 7px;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      transition: background .15s;
+    }
+    .nav-gh:hover { background: var(--amber-bg); }
+
+    /* ─── Hero ─── */
+    #hero {
+      padding: 96px 0 88px;
+      text-align: center;
+    }
+
+    .hero-icon {
+      font-size: 44px;
+      line-height: 1;
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    .hero-h {
+      font-family: var(--fd);
+      font-size: var(--t-hero);
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -2.5px;
+      line-height: 1.08;
+      margin-bottom: 22px;
+    }
+
+    .hero-sub {
+      font-size: clamp(15px, 2.2vw, 18px);
+      color: var(--muted);
+      max-width: 50ch;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    /* stat pill in hero */
+    .hero-pill {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 9px;
+      background: var(--bg-alt);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      padding: 10px 24px;
+      margin-bottom: 40px;
+    }
+
+    .hero-pill-n {
+      font-family: var(--fd);
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 700;
+      color: var(--amber);
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .hero-pill-l {
+      font-size: var(--t-sm);
+      color: var(--muted);
+      line-height: 1.3;
+      text-align: left;
+    }
+
+    /* CTAs */
+    .hero-ctas {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-install {
+      display: inline-flex;
+      align-items: stretch;
+      background: var(--bg-alt);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    .hero-install code {
+      font-size: 13px;
+      color: var(--text);
+      padding: 13px 18px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+
+    .hero-install-btn {
+      background: var(--amber);
+      border: none;
+      color: var(--bg);
+      font-family: var(--fb);
+      font-size: var(--t-sm);
+      font-weight: 700;
+      padding: 13px 20px;
+      white-space: nowrap;
+      min-height: 44px;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .hero-install-btn:hover { opacity: .85; }
+
+    .hero-gh-link {
+      font-size: var(--t-sm);
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 10px 22px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      transition: border-color .15s, color .15s;
+    }
+    .hero-gh-link:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ─── Demo ─── */
+    #demo {
+      padding: 88px 0;
+      background: var(--bg-alt);
+    }
+
+    .demo-q-label {
+      font-size: var(--t-sm);
+      color: var(--dim);
+      margin-bottom: 22px;
+    }
+    .demo-q-label strong { color: var(--muted); font-weight: 600; }
+
+    .demo-tabs {
+      display: flex;
+      gap: 3px;
+      background: var(--border);
+      padding: 3px;
+      border-radius: 9px;
+      width: fit-content;
+      margin-bottom: 16px;
+    }
+
+    .demo-tab {
+      font-family: var(--fb);
+      font-size: var(--t-sm);
+      font-weight: 500;
+      padding: 8px 18px;
+      min-height: 36px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .demo-tab.active {
+      background: var(--bg);
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(35,26,12,.09);
+    }
+
+    .demo-tab.active.esp {
+      background: var(--amber);
+      color: var(--bg);
+    }
+
+    .demo-card {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 26px 28px;
+      min-height: 270px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-resp {
+      position: absolute;
+      inset: 26px 28px;
+      font-size: 15px;
+      line-height: 1.7;
+      transition: opacity .22s, transform .22s;
+    }
+
+    .demo-resp.hidden {
+      opacity: 0;
+      transform: translateY(6px);
+      pointer-events: none;
+    }
+
+    .demo-resp p { margin-bottom: 12px; }
+    .demo-resp p:last-child { margin-bottom: 0; }
+
+    /* the noise — visually shows what gets removed */
+    .noise {
+      color: var(--stone);
+      font-style: italic;
+    }
+
+    .demo-resp pre {
+      font-family: var(--fd);
+      font-size: 12.5px;
+      line-height: 1.65;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin-top: 10px;
+      tab-size: 2;
+    }
+
+    .demo-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .demo-count-wrap {
+      font-family: var(--fd);
+      font-size: var(--t-xs);
+      color: var(--dim);
+    }
+
+    .demo-count-n {
+      font-size: var(--t-sm);
+      font-weight: 700;
+      color: var(--amber);
+    }
+
+    .demo-verdict {
+      font-size: var(--t-xs);
+      color: var(--dim);
+      font-style: italic;
+    }
+
+    /* ─── Stats — the dark shot ─── */
+    #stats {
+      padding: 80px 0;
+      background: var(--bg-dark);
+    }
+
+    .stats-eyebrow {
+      display: block;
+      font-family: var(--fb);
+      font-size: var(--t-eye);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--stone);
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: #2e2215;
+      border: 1px solid #2e2215;
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+
+    .stat-item {
+      background: var(--bg-dark);
+      padding: 40px 28px;
+      text-align: center;
+    }
+
+    .stat-n {
+      display: block;
+      font-family: var(--fd);
+      font-size: clamp(44px, 7vw, 72px);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 10px;
+      letter-spacing: -2px;
+    }
+
+    .stat-n.amber { color: var(--amber); }
+    .stat-n.cream { color: var(--bg); }
+    .stat-n.green { color: #7DB92A; }
+
+    .stat-l {
+      display: block;
+      font-family: var(--fb);
+      font-size: var(--t-sm);
+      color: var(--stone);
+      line-height: 1.4;
+    }
+
+    .stats-note {
+      text-align: center;
+      margin-top: 20px;
+      font-size: var(--t-xs);
+      color: #5a4535;
+    }
+
+    /* ─── How to use ─── */
+    #use { padding: 88px 0; }
+
+    .use-intro {
+      font-size: clamp(14px, 2vw, 16px);
+      color: var(--muted);
+      max-width: 48ch;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .use-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .use-card {
+      background: var(--bg-alt);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .use-cmd {
+      font-family: var(--fd);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--amber);
+      white-space: nowrap;
+      padding-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .use-desc strong {
+      display: block;
+      font-size: var(--t-sm);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .use-desc span {
+      font-size: var(--t-xs);
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* ─── What stays ─── */
+    #never {
+      padding: 88px 0;
+      background: var(--bg-alt);
+    }
+
+    .nv-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 32px;
+    }
+
+    .nv-item {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 15px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .nv-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      margin-top: 7px;
+      flex-shrink: 0;
+    }
+
+    .nv-text strong {
+      display: block;
+      font-size: var(--t-sm);
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .nv-text span {
+      font-size: var(--t-xs);
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      padding: 56px 0 40px;
+      border-top: 1px solid var(--border);
+    }
+
+    .ft-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      text-align: center;
+    }
+
+    .ft-logo {
+      font-family: var(--fd);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .ft-install {
+      display: inline-flex;
+      align-items: stretch;
+      background: var(--bg-alt);
+      border: 1.5px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      max-width: 100%;
+    }
+
+    .ft-install code {
+      font-size: 13px;
+      color: var(--text);
+      padding: 11px 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ft-install-btn {
+      background: var(--amber);
+      border: none;
+      color: var(--bg);
+      font-family: var(--fb);
+      font-size: var(--t-xs);
+      font-weight: 700;
+      padding: 11px 16px;
+      min-height: 44px;
+      cursor: pointer;
+      transition: opacity .15s;
+      white-space: nowrap;
+    }
+    .ft-install-btn:hover { opacity: .85; }
+
+    .ft-meta {
+      font-size: var(--t-xs);
+      color: var(--dim);
+    }
+
+    .ft-meta a { color: var(--amber); }
+    .ft-meta a:hover { text-decoration: underline; }
+
+    /* ─── Reveal animation ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .reveal.in {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 640px) {
+      #hero    { padding: 72px 0 64px; }
+      #demo    { padding: 64px 0; }
+      #stats   { padding: 60px 0; }
+      #use     { padding: 64px 0; }
+      #never   { padding: 64px 0; }
+
+      .use-grid    { grid-template-columns: 1fr; }
+      .nv-grid     { grid-template-columns: 1fr; }
+      .stats-grid  { grid-template-columns: 1fr; }
+      .nav-links   { display: none; }
+      .hero-h      { letter-spacing: -1.5px; }
+      .demo-card   { padding: 20px; }
+      .demo-resp   { inset: 20px; }
+    }
+
+    @media (max-width: 420px) {
+      .hero-install code { font-size: 11px; padding: 13px 12px; }
+      .hero-install-btn  { padding: 13px 14px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .demo-resp { transition: none; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Nav ─── -->
+  <nav>
+    <a href="#" class="nav-logo">☕ espresso</a>
+    <ul class="nav-links">
+      <li><a href="#demo">See it</a></li>
+      <li><a href="#use">How to use</a></li>
+      <li><a href="#never">What stays</a></li>
+    </ul>
+    <a href="https://github.com/mzuleta6/espresso" class="nav-gh" target="_blank" rel="noopener">GitHub →</a>
+  </nav>
+
+  <main>
+
+    <!-- ─── Hero ─── -->
+    <section id="hero">
+      <div class="wrap">
+        <span class="hero-icon">☕</span>
+        <span class="eyebrow" style="justify-content:center;display:block;">Claude Code plugin · free · open source</span>
+
+        <h1 class="hero-h">
+          Get the answer.<br>Not the essay.
+        </h1>
+
+        <p class="hero-sub">
+          espresso removes hedging, filler, and re-contextualization
+          from every Claude response — without ever touching your code.
+        </p>
+
+        <div style="display:flex;justify-content:center;margin-bottom:40px;">
+          <div class="hero-pill">
+            <span class="hero-pill-n">−66%</span>
+            <span class="hero-pill-l">shorter<br>on average</span>
+          </div>
+        </div>
+
+        <div class="hero-ctas">
+          <div class="hero-install">
+            <code>/plugin marketplace add mzuleta6/espresso</code>
+            <button class="hero-install-btn" onclick="cp(this,'/plugin marketplace add mzuleta6/espresso')">
+              Copy
+            </button>
+          </div>
+          <a href="https://github.com/mzuleta6/espresso"
+             class="hero-gh-link" target="_blank" rel="noopener">
+            View on GitHub →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Demo ─── -->
+    <section id="demo">
+      <div class="wrap">
+        <span class="eyebrow">See it in action</span>
+        <h2 class="sec-h">The same question.<br>Two very different answers.</h2>
+        <p class="sec-p">
+          Real question. Real responses. Muted italic text is the noise espresso removes.
+        </p>
+
+        <p class="demo-q-label">
+          <strong>Question asked:</strong>
+          "Why is my Server Action not throwing when Prisma fails?"
+        </p>
+
+        <div class="demo-tabs">
+          <button class="demo-tab active" id="tb" onclick="showDemo('before')">Without espresso</button>
+          <button class="demo-tab esp"    id="ta" onclick="showDemo('after')">With espresso</button>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-resp" id="rb">
+            <p>
+              <span class="noise">Great question!</span>
+              Server Actions in Next.js are a powerful feature that allows you to run server-side code directly from your components.
+              <span class="noise">When it comes to error handling, there are a few things to consider.</span>
+            </p>
+            <p>
+              <span class="noise">First, let me explain what happens when a Server Action encounters an error.</span>
+              By default, Next.js wraps Server Actions in an error boundary, which means errors thrown inside them
+              <span class="noise">may not propagate the way you'd expect from a regular async function.</span>
+            </p>
+            <p>
+              <span class="noise">This might be because of how Next.js handles errors internally, or it could be related to how Prisma throws errors in certain contexts. It's possible that the error is being caught somewhere.</span>
+            </p>
+            <p>
+              <span class="noise">I'd suggest trying to add a try-catch block and explicitly rethrowing the error. This should help surface the error properly. Let me know if you'd like me to elaborate or have any questions!</span>
+            </p>
+          </div>
+          <div class="demo-resp hidden" id="ra">
+            <p>Server Actions swallow errors by default — Next.js catches them and surfaces them as ErrorBoundary triggers, not thrown exceptions. Rethrow explicitly:</p>
+            <pre>export async function updateUser(data: FormData) {
+  "use server"
+  try {
+    await prisma.user.update({ ... })
+  } catch (err) {
+    throw new Error(
+      `Failed: ${err instanceof Error ? err.message : String(err)}`
+    )
+  }
+}</pre>
+          </div>
+        </div>
+
+        <div class="demo-meta">
+          <div class="demo-count-wrap">
+            <span class="demo-count-n" id="dcn">1,851</span> characters
+          </div>
+          <span class="demo-verdict" id="dvd">
+            7 sentences · 4 were noise · answer was sentence 4
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Stats — dark shot ─── -->
+    <section id="stats">
+      <div class="wrap">
+        <span class="stats-eyebrow">
+          In-session A/B benchmark · same model · character count
+        </span>
+
+        <div class="stats-grid">
+          <div class="stat-item reveal">
+            <span class="stat-n amber" id="sn1">−66%</span>
+            <span class="stat-l">shorter per response</span>
+          </div>
+          <div class="stat-item reveal">
+            <span class="stat-n cream" id="sn2">3,288</span>
+            <span class="stat-l">characters saved per session</span>
+          </div>
+          <div class="stat-item reveal">
+            <span class="stat-n green" id="sn3">219</span>
+            <span class="stat-l">fewer words per answer</span>
+          </div>
+        </div>
+
+        <p class="stats-note">3 questions tested · React re-render, TS2345, Next.js Server Actions</p>
+      </div>
+    </section>
+
+    <!-- ─── How to use ─── -->
+    <section id="use">
+      <div class="wrap">
+        <span class="eyebrow">How to use it</span>
+        <h2 class="sec-h">Already on.<br>Just type.</h2>
+        <p class="use-intro">
+          Once installed, espresso activates automatically — you don't need to do anything.
+          To change how aggressive it is:
+        </p>
+
+        <div class="use-grid">
+          <div class="use-card">
+            <span class="use-cmd">/espresso lite</span>
+            <div class="use-desc">
+              <strong>Lite</strong>
+              <span>Quieter. Keeps some context when the topic needs it.</span>
+            </div>
+          </div>
+          <div class="use-card">
+            <span class="use-cmd">/espresso full</span>
+            <div class="use-desc">
+              <strong>Full — default</strong>
+              <span>Removes all noise. Keeps all substance.</span>
+            </div>
+          </div>
+          <div class="use-card">
+            <span class="use-cmd">/espresso ultra</span>
+            <div class="use-desc">
+              <strong>Ultra</strong>
+              <span>Maximum. No unsolicited explanations or examples.</span>
+            </div>
+          </div>
+          <div class="use-card">
+            <span class="use-cmd">/normal</span>
+            <div class="use-desc">
+              <strong>Off</strong>
+              <span>Turns espresso off. Back to standard Claude.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── What stays ─── -->
+    <section id="never">
+      <div class="wrap">
+        <span class="eyebrow">What espresso never touches</span>
+        <h2 class="sec-h">Code always comes out whole.</h2>
+        <p class="sec-p">
+          espresso only removes prose filler.
+          It never shortens, truncates, or paraphrases any of these:
+        </p>
+
+        <div class="nv-grid">
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>Code blocks</strong>
+              <span>Complete — no <code style="font-size:11px">// ...rest is the same</code></span>
+            </div>
+          </div>
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>Error messages</strong>
+              <span>Verbatim, full stack traces</span>
+            </div>
+          </div>
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>TypeScript types</strong>
+              <span>Full interfaces, generics, union types</span>
+            </div>
+          </div>
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>API names & endpoints</strong>
+              <span>Exact casing, exact paths</span>
+            </div>
+          </div>
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>CLI commands</strong>
+              <span>All flags, full paths when they matter</span>
+            </div>
+          </div>
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>React hooks</strong>
+              <span>Full implementations, correct dependency arrays</span>
+            </div>
+          </div>
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>Tailwind classes</strong>
+              <span>Full class lists, never collapsed</span>
+            </div>
+          </div>
+          <div class="nv-item reveal">
+            <div class="nv-dot"></div>
+            <div class="nv-text">
+              <strong>Artifacts & components</strong>
+              <span>Full design, complete implementation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── Footer ─── -->
+  <footer>
+    <div class="wrap">
+      <div class="ft-inner">
+        <p class="ft-logo">☕ espresso</p>
+
+        <div class="ft-install">
+          <code>/plugin marketplace add mzuleta6/espresso</code>
+          <button class="ft-install-btn"
+                  onclick="cp(this,'/plugin marketplace add mzuleta6/espresso')">
+            Copy
+          </button>
+        </div>
+
+        <p class="ft-meta">
+          MIT &copy; 2026
+          <a href="https://github.com/mzuleta6" target="_blank" rel="noopener">mzuleta6</a>
+          &nbsp;·&nbsp;
+          <a href="https://github.com/mzuleta6/espresso" target="_blank" rel="noopener">GitHub</a>
+          &nbsp;·&nbsp;
+          <a href="https://github.com/mzuleta6/espresso/issues" target="_blank" rel="noopener">Report an issue</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ─── Demo toggle + char counter ─── */
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function animateCount(el, from, to, ms, fmt) {
+      const t0 = performance.now();
+      (function tick(now) {
+        const p = easeOut(Math.min((now - t0) / ms, 1));
+        const v = Math.round(from + (to - from) * p);
+        el.textContent = fmt(v);
+        if (p < 1) requestAnimationFrame(tick);
+      })(t0);
+    }
+
+    function showDemo(state) {
+      const rb = document.getElementById('rb');
+      const ra = document.getElementById('ra');
+      const tb = document.getElementById('tb');
+      const ta = document.getElementById('ta');
+      const cn = document.getElementById('dcn');
+      const dv = document.getElementById('dvd');
+      const current = state === 'before' ? 1851 : 526;
+      const from    = state === 'before' ? 526  : 1851;
+
+      if (state === 'before') {
+        rb.classList.remove('hidden'); ra.classList.add('hidden');
+        tb.classList.add('active');    ta.classList.remove('active');
+        dv.textContent = '7 sentences · 4 were noise · answer was sentence 4';
+      } else {
+        ra.classList.remove('hidden'); rb.classList.add('hidden');
+        ta.classList.add('active');    tb.classList.remove('active');
+        dv.textContent = '1 sentence · then code · nothing wasted';
+      }
+
+      animateCount(cn, from, current, 500, n => n.toLocaleString());
+    }
+
+    /* ─── Copy ─── */
+    function cp(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        const was = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = was; }, 1800);
+      });
+    }
+
+    /* ─── Scroll reveals ─── */
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>

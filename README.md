@@ -97,6 +97,23 @@ Then restart Claude Code. espresso activates automatically (`always: true`).
 
 ---
 
+## How to use it
+
+**You don't need to do anything.** Once installed, espresso is on.
+
+To change how it behaves, type one of these commands anywhere in Claude Code:
+
+```
+/espresso lite    →  A little quieter. Keeps some context when the topic is complex.
+/espresso full    →  Default. Removes all noise, keeps all substance.
+/espresso ultra   →  Maximum. No unsolicited explanations or extra examples.
+/normal           →  Turns espresso off. Back to standard Claude.
+```
+
+That's it.
+
+---
+
 ## Levels
 
 | Command | Level | What changes |
