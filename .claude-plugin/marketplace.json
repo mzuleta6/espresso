@@ -1,0 +1,14 @@
+{
+  "name": "espresso-plugins",
+  "plugins": [
+    {
+      "name": "espresso",
+      "source": "./plugins/espresso",
+      "description": "Claude without the noise. Eliminates hedging, filler, and re-contextualization from every response.",
+      "version": "1.1.0"
+    }
+  ],
+  "owner": {
+    "name": "mzuleta6"
+  }
+}

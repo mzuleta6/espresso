@@ -3,7 +3,8 @@
   "name": "espresso",
   "display_name": "espresso — Claude without the noise.",
   "version": "1.1.0",
-  "description": "Eliminates hedging, filler, re-contextualization from every Claude response.",
+  "description": "Eliminates hedging, filler, re-contextualization, and meta-commentary from every Claude response. Keeps code, errors, types, and APIs untouched. Ships with 3 noise levels and full artifact exemption.",
+  "long_description": "espresso rewires how Claude communicates in Claude Code. Instead of 3 paragraphs of hedging for a simple bug fix, you get the fix. Instead of 'Great question! Let me analyze that for you...', you get the answer. Every technical element — code blocks, TypeScript types, React hooks, Tailwind classes, CLI commands, stack traces — is reproduced with full fidelity. Artifacts are fully exempt: components, dashboards, and visualizations get full design treatment. Three levels let you dial noise reduction from surgical (lite) to extreme (ultra).",
   "author": {
     "name": "mzuleta6",
     "url": "https://github.com/mzuleta6"
@@ -11,14 +12,48 @@
   "source": {
     "type": "github",
     "url": "https://github.com/mzuleta6/espresso",
-    "ref": "main"
+    "ref": "v1.1.0"
   },
+  "homepage": "https://github.com/mzuleta6/espresso",
+  "repository": "https://github.com/mzuleta6/espresso",
   "license": "MIT",
   "category": "productivity",
-  "tags": ["productivity","token-efficiency","developer-experience","noise-reduction"],
+  "tags": [
+    "productivity",
+    "token-efficiency",
+    "developer-experience",
+    "noise-reduction",
+    "concise",
+    "react",
+    "nextjs",
+    "typescript",
+    "tailwind",
+    "claude-code",
+    "skill"
+  ],
+  "keywords": [
+    "espresso",
+    "concise",
+    "token reduction",
+    "noise free",
+    "hedging",
+    "filler",
+    "developer tools"
+  ],
   "icon": "☕",
+  "banner": "https://raw.githubusercontent.com/mzuleta6/espresso/v1.1.0/.github/banner.svg",
+  "screenshots": [],
+  "stats": {
+    "avg_token_reduction": "58%",
+    "noise_categories_eliminated": 7
+  },
+  "compatibility": {
+    "claude_code_min": "1.0.0",
+    "models": ["claude-sonnet-4-6", "claude-opus-4-6", "claude-haiku-4-5"]
+  },
   "install": {
     "marketplace": "/plugin marketplace add mzuleta6/espresso",
-    "manual": "mkdir -p ~/.claude/plugins/espresso && curl -o ~/.claude/plugins/espresso/SKILL.md https://raw.githubusercontent.com/mzuleta6/espresso/main/SKILL.md"
-  }
+    "manual": "mkdir -p ~/.claude/plugins/espresso/skills/espresso && curl -o ~/.claude/plugins/espresso/skills/espresso/SKILL.md https://raw.githubusercontent.com/mzuleta6/espresso/v1.1.0/SKILL.md && curl -o ~/.claude/plugins/espresso/plugin.json https://raw.githubusercontent.com/mzuleta6/espresso/v1.1.0/plugin.json"
+  },
+  "changelog_url": "https://github.com/mzuleta6/espresso/blob/main/CHANGELOG.md"
 }
