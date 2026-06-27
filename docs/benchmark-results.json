@@ -1,0 +1,30 @@
+{
+  "generated": "2026-06-26T00:00:00.000Z",
+  "model": "claude-sonnet-4-6",
+  "method": "in-session character count",
+  "results": [
+    {
+      "question": "React re-render on parent render",
+      "baseline_chars": 1851,
+      "espresso_chars": 526,
+      "reduction_pct": 72
+    },
+    {
+      "question": "TS2345: string | undefined fix",
+      "baseline_chars": 1309,
+      "espresso_chars": 466,
+      "reduction_pct": 64
+    },
+    {
+      "question": "Next.js Server Action validation",
+      "baseline_chars": 1817,
+      "espresso_chars": 697,
+      "reduction_pct": 62
+    }
+  ],
+  "summary": {
+    "avg_reduction_pct": 66,
+    "total_chars_saved": 3288,
+    "avg_words_saved_per_answer": 219
+  }
+}

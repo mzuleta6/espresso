@@ -52,13 +52,19 @@ That's what espresso does.
 
 ---
 
-## Before / After
+## Benchmark
 
-| Scenario | Without espresso | With espresso | Saved |
+> Last run: 2026-06-26 · Model: claude-sonnet-4-6 · Method: in-session A/B
+
+![reduction](https://img.shields.io/badge/avg_reduction-66%25-BA7517?style=flat-square&labelColor=1c1917)
+![saved](https://img.shields.io/badge/chars_saved-3288-22c55e?style=flat-square&labelColor=1c1917)
+![words](https://img.shields.io/badge/fewer_words_per_answer-219-57534e?style=flat-square&labelColor=1c1917)
+
+| Question | Baseline | With espresso | Reduction |
 |---|---|---|---|
-| **React re-render** — why is my component re-rendering on every parent render? | 214 tokens · 9 sentences · 2 were the answer | 91 tokens · answer first | **−57%** |
-| **TypeScript TS2345** — `string \| undefined` not assignable to `string` | 231 tokens · "that's a great question" opener | 78 tokens · 3 concrete fixes | **−66%** |
-| **Server Actions** — form validation with `useActionState` | 246 tokens · pseudocode · "would you like an example?" | 198 tokens · complete implementation | **−19%** |
+| React re-render on parent render | 1,851 chars | 526 chars | **−72%** |
+| TS2345: string \| undefined fix | 1,309 chars | 466 chars | **−64%** |
+| Next.js Server Action validation | 1,817 chars | 697 chars | **−62%** |
 
 > espresso never reduces code. If the baseline only had prose and the correct response has code, espresso generates more tokens — because the correct response is more useful, not less. Noise reduction ≠ answer reduction.
 

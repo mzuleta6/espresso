@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+# espresso pre-commit hook
+# Bypass with: git commit --no-verify
+
+set -euo pipefail
+
+PASS=0
+FAIL=1
+errors=()
+warnings=()
+
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+# ─── Helpers ────────────────────────────────────────────────────────────────
+
+staged() { git diff --cached --name-only; }
+
+check() {
+  local label=$1; local result=$2; local fix=$3
+  if [ "$result" -ne 0 ]; then
+    errors+=("${RED}✗${RESET} ${BOLD}${label}${RESET}\n  ${fix}")
+  fi
+}
+
+warn() {
+  local label=$1; local msg=$2
+  warnings+=("${YELLOW}⚠${RESET}  ${BOLD}${label}${RESET}\n  ${msg}")
+}
+
+# ─── 1. JSON válido ──────────────────────────────────────────────────────────
+
+for f in plugin.json marketplace.json plugins/espresso/.claude-plugin/plugin.json; do
+  if git diff --cached --name-only | grep -q "^${f}$"; then
+    python3 -m json.tool "$f" > /dev/null 2>&1
+    check "JSON inválido: $f" $? "Corrige el JSON antes de commitear."
+  fi
+done
+
+# ─── 2. Versiones en sync ────────────────────────────────────────────────────
+
+get_version_json() { python3 -c "import json; print(json.load(open('$1'))['version'])"; }
+get_version_skill() { grep '^version:' "$1" | awk '{print $2}'; }
+
+V_ROOT=$(get_version_json plugin.json)
+V_NESTED=$(get_version_json plugins/espresso/.claude-plugin/plugin.json)
+V_MARKET=$(get_version_json marketplace.json)
+V_SKILL=$(get_version_skill SKILL.md)
+V_SKILL_NESTED=$(get_version_skill plugins/espresso/skills/espresso/SKILL.md)
+
+if [ "$V_ROOT" != "$V_NESTED" ]; then
+  check "Versión desincronizada: plugin.json vs plugins/.../plugin.json" 1 \
+    "plugin.json=${V_ROOT} pero plugins/espresso/.claude-plugin/plugin.json=${V_NESTED}. Deben ser iguales."
+fi
+
+if [ "$V_ROOT" != "$V_MARKET" ]; then
+  check "Versión desincronizada: plugin.json vs marketplace.json" 1 \
+    "plugin.json=${V_ROOT} pero marketplace.json=${V_MARKET}. Deben ser iguales."
+fi
+
+if [ "$V_ROOT" != "$V_SKILL" ]; then
+  check "Versión desincronizada: plugin.json vs SKILL.md" 1 \
+    "plugin.json=${V_ROOT} pero SKILL.md=${V_SKILL}. Deben ser iguales."
+fi
+
+if [ "$V_SKILL" != "$V_SKILL_NESTED" ]; then
+  check "Versión desincronizada: SKILL.md vs plugins/.../SKILL.md" 1 \
+    "SKILL.md=${V_SKILL} pero plugins/espresso/skills/espresso/SKILL.md=${V_SKILL_NESTED}. Deben ser iguales."
+fi
+
+# ─── 3. SKILL.md copies en sync ─────────────────────────────────────────────
+
+diff SKILL.md plugins/espresso/skills/espresso/SKILL.md > /dev/null 2>&1
+check "SKILL.md copies divergidas" $? \
+  "Edita una y copia al otro: cp SKILL.md plugins/espresso/skills/espresso/SKILL.md"
+
+# ─── 4. plugin.json copies en sync ──────────────────────────────────────────
+
+ROOT_JSON=$(python3 -c "
+import json
+with open('plugin.json') as f:
+    d = json.load(f)
+d.pop('skills', None)
+print(json.dumps(d, sort_keys=True))
+")
+NESTED_JSON=$(python3 -c "
+import json
+with open('plugins/espresso/.claude-plugin/plugin.json') as f:
+    d = json.load(f)
+d.pop('skills', None)
+print(json.dumps(d, sort_keys=True))
+")
+
+if [ "$ROOT_JSON" != "$NESTED_JSON" ]; then
+  check "plugin.json copies divergidas (campos compartidos)" 1 \
+    "Los campos fuera de 'skills' deben ser idénticos en ambos plugin.json."
+fi
+
+# ─── 5. Si cambió SKILL.md → CHANGELOG debe tener entrada hoy ───────────────
+
+SKILL_CHANGED=$(staged | grep -c "SKILL.md" || true)
+CHANGELOG_CHANGED=$(staged | grep -c "CHANGELOG.md" || true)
+
+if [ "$SKILL_CHANGED" -gt 0 ] && [ "$CHANGELOG_CHANGED" -eq 0 ]; then
+  warn "SKILL.md cambió pero CHANGELOG.md no" \
+    "¿Olvidaste documentar el cambio en CHANGELOG.md?"
+fi
+
+# ─── 6. Si cambió versión → CHANGELOG debe mencionarla ──────────────────────
+
+VERSION_CHANGED=$(staged | grep -cE "plugin.json|marketplace.json|SKILL.md" || true)
+if [ "$VERSION_CHANGED" -gt 0 ]; then
+  if ! grep -q "\[${V_ROOT}\]" CHANGELOG.md 2>/dev/null; then
+    warn "Versión ${V_ROOT} no encontrada en CHANGELOG.md" \
+      "Agrega una entrada [${V_ROOT}] en CHANGELOG.md antes de releaser."
+  fi
+fi
+
+# ─── 7. Si cambió versión → tag debe ser creado ─────────────────────────────
+
+if [ "$VERSION_CHANGED" -gt 0 ]; then
+  if ! git tag | grep -q "^v${V_ROOT}$"; then
+    warn "Tag v${V_ROOT} no existe" \
+      "Después del push corre: git tag -a v${V_ROOT} -m 'espresso v${V_ROOT}' && git push origin v${V_ROOT}"
+  fi
+fi
+
+# ─── Output ──────────────────────────────────────────────────────────────────
+
+echo ""
+echo -e "${BOLD}☕ espresso pre-commit${RESET}"
+echo "──────────────────────────────────────────"
+
+if [ ${#errors[@]} -gt 0 ]; then
+  echo -e "\n${RED}${BOLD}Bloqueado — corrige antes de commitear:${RESET}\n"
+  for err in "${errors[@]}"; do
+    echo -e "  $err\n"
+  done
+fi
+
+if [ ${#warnings[@]} -gt 0 ]; then
+  echo -e "\n${YELLOW}${BOLD}Advertencias (no bloquean):${RESET}\n"
+  for w in "${warnings[@]}"; do
+    echo -e "  $w\n"
+  done
+fi
+
+if [ ${#errors[@]} -eq 0 ] && [ ${#warnings[@]} -eq 0 ]; then
+  echo -e "  ${GREEN}✓${RESET} Todo en orden."
+fi
+
+echo "──────────────────────────────────────────"
+
+if [ ${#errors[@]} -gt 0 ]; then
+  echo -e "  Usa ${CYAN}git commit --no-verify${RESET} para omitir estos checks.\n"
+  exit 1
+fi
+
+echo ""
+exit 0
